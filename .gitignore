@@ -1,0 +1,4 @@
+input_scripts/*
+output_scripts/data/*
+
+.DS_Store
