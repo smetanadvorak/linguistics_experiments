@@ -16,16 +16,12 @@ def extract_regions(frame):
     
     # Define regions (adjust these based on your exact layout)
     text_region = frame[0:height//3, :]  # Top third for text
-    # left_image = frame[height//3:, 0:width//2]  # Bottom left for left image
-    # right_image = frame[height//3:, width//2:]  # Bottom right for right image
     
     # Remove timer region (top left corner)
     text_region[0:height//10, 0:width//10] = 255  # Make timer region white
     
     return {
         'text': text_region,
-        # 'left_image': left_image,
-        # 'right_image': right_image
     }
 
 def extract_frames(video_path, timestamps_file, output_dir):
@@ -43,17 +39,15 @@ def extract_frames(video_path, timestamps_file, output_dir):
     fps = video.get(cv2.CAP_PROP_FPS)
     
     # Create directory for this item
-    items_dir = os.path.join(output_dir, "frames")
-    Path(items_dir).mkdir(exist_ok=True)
+    images_dir = os.path.join(output_dir, "frames")
+    Path(images_dir).mkdir(exist_ok=True)
 
     for _, row in df.iterrows():
         item_name = row['Item_name']
         start_time = float(row['Start_time'])
         
-
-        
         # Get frame at start time (plus small offset to ensure content is visible)
-        frame_num = int((start_time + 0.1) * fps)
+        frame_num = int((start_time + 0.5) * fps)
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
         ret, frame = video.read()
         
@@ -62,12 +56,7 @@ def extract_frames(video_path, timestamps_file, output_dir):
             regions = extract_regions(frame)
             
             # Save each region separately
-            cv2.imwrite(os.path.join(items_dir, f"{item_name}_text.jpg"), regions['text'])
-            # cv2.imwrite(os.path.join(item_dir, f"{item_name}_left.jpg"), regions['left_image'])
-            # cv2.imwrite(os.path.join(item_dir, f"{item_name}_right.jpg"), regions['right_image'])
-            
-            # Save full frame for reference
-            # cv2.imwrite(os.path.join(item_dir, f"{item_name}_full.jpg"), frame)
+            cv2.imwrite(os.path.join(images_dir, f"{item_name}_text.jpg"), regions['text'])
     
     video.release()
 
