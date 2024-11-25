@@ -113,6 +113,34 @@ def main():
     parser.add_argument('--text-weight', type=float, default=1.0,
                       help='Text similarity weight (default: 1.0)')
     
+    skip = [
+        "G10119-scrrec.mkv",
+        "G10123-scrrec.mkv",
+        "G10114-scrrec.mkv",
+        "G20418FR-scrrec.mkv",
+        "G10108-scrrec.mkv",
+        "G10126-scrrec.mkv",
+        "G20419FR-scrrec.mkv",
+        "G30714FR-scrrec.mkv",
+        "G20413FR-scrrec.mkv",
+        "G20414FR-scrrec.mkv",
+        "G30713FR-scrrec.mkv",
+        "G10107-scrrec.mkv",
+        "G30706FR-scrrec.mkv",
+        "G20406FR-scrrec.mkv",
+        "G10116-scrrec.mkv",
+        "G10121-scrrec.mkv",
+        "G20425FR-scrrec.mkv",
+        "G20407FR-scrrec.mkv",
+        "G30707FR-scrrec.mkv",
+        "G30712FR-scrrec.mkv",
+        "G20415FR-scrrec.mkv",
+        "G20412FR-scrrec.mkv",
+        "G30715FR-scrrec.mkv",
+        "G10124-scrrec.mkv",
+        "G10113-scrrec.mkv"
+    ]
+
     args = parser.parse_args()
     reference_frames = load_reference_frames(args.reference_dir)
     input_path = Path(args.input_path)
@@ -128,6 +156,8 @@ def main():
         video_files = list(input_path.glob('*.mp4')) + list(input_path.glob('*.avi')) + \
                      list(input_path.glob('*.mkv')) + list(input_path.glob('*.mov'))
         for video_file in tqdm(video_files, desc="Processing videos"):
+            if video_file.name in skip:
+                continue
             output_file = process_video(
                 video_file, reference_frames,
                 args.output_path, args.threshold, args.text_weight

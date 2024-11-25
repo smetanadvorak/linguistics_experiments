@@ -62,6 +62,7 @@ def extract_frames(video_path, timestamps_file, output_dir):
 
 def main():
     import argparse
+    
     parser = argparse.ArgumentParser(description='Extract frame regions from video based on timestamps')
     parser.add_argument('video_path', help='Path to the video file')
     parser.add_argument('timestamps_file', help='Path to the Excel file containing timestamps')
