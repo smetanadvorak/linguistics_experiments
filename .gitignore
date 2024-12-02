@@ -1,4 +1,9 @@
+*/__pycache__/*
+
 input_scripts/*
 output_scripts/data/*
+output_scripts/data_backup/*
+output_scripts/completion_reports/*
+
 
 .DS_Store

@@ -240,7 +240,7 @@ class XMLProcessor:
 
             # start_time = float(sentences_df.iloc[item_idx]['Stimuli_text.started']) - t0
             # stop_time = start_time + float(sentences_df.iloc[item_idx]['mouse_2.time'])
-            event = events_dict[item_name]
+            event = events_dict.get(item_name, events_dict.get(item_name + "_text.jpg"))
             start_time = float(event["start_time"]) - 0.1
             stop_time = float(event["end_time"]) - 0.1
             print(item_name, start_time, stop_time)
@@ -300,9 +300,7 @@ class XMLProcessor:
 
 def main():
     sentences_df = pd.read_csv('G20407.csv')
-    processor = XMLProcessor('G20406.xml') # do not change this
-
-    t0 = 30.641
+    template_xml = XMLProcessor('G20406.xml') # do not change this
 
     events_file = "detected_events.json"
     with open(events_file, 'r') as f:
@@ -310,14 +308,13 @@ def main():
         events_dict = {event['event']: event for event in events_data}
 
     print("\nReading XML file...")
-    aoi_list, item_dict = processor.read_xml()
+    aoi_list, item_dict = template_xml.read_xml()
     print(len(aoi_list))
     
     print("\nReordering entries based on sentences...")
-    # ordered_aoi_list = processor.reorder_by_sentences(aoi_list, sentences_df, t0, events_dict)
-    ordered_aoi_list = processor.reorder_by_sentences2(item_dict, sentences_df, events_dict)
+    ordered_aoi_list = template_xml.reorder_by_sentences2(item_dict, sentences_df, events_dict)
 
-    processor.write_xml(ordered_aoi_list, 'output31.xml')
+    template_xml.write_xml(ordered_aoi_list, 'output31.xml')
 
 if __name__ == "__main__":
     main()
