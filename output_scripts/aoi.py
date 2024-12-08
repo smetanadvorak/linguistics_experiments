@@ -91,6 +91,7 @@ class XMLProcessor:
         
         # Simple mapping between sentences and their base words
         self.sentence_mapping = {
+            # English mappings
             "This glass is easy to drop.": "glass",
             "This game is easy to play.": "game",
             "This girl is difficult to see.": "girl",
@@ -102,7 +103,56 @@ class XMLProcessor:
             "This dog is difficult to walk.": "dog",
             "This trolley is difficult to roll.": "trol",
             "This animal is easy to hide.": "anim",
-            "This book is difficult to read.": "book"
+            "This book is difficult to read.": "book",
+            
+            # French mappings
+            "Ce verre est facile à renverser.": "glass",
+            "Ce jeu est facile à jouer.": "game",
+            "Cette fille est difficile à voir.": "girl",
+            "Ce chat est facile à laver.": "cat",
+            "Cet oiseau est facile à chasser.": "bird",
+            "Cette image est facile à dessiner.": "pic",
+            "Cette balle est difficile à rebondir.": "ball",
+            "Ce ballon est difficile à frapper.": "ball",
+            "Ce patient est difficile à déplacer.": "pat",
+            "Ce chien est difficile à promener.": "dog",
+            "Ce chariot est difficile à pousser.": "trol",
+            "Cet animal est facile à cacher.": "anim",
+            "Ce livre est difficile à lire.": "book",
+            
+            # Russian mappings
+            "Этот стакан легко уронить.": "glass",
+            "В эту игру легко играть.": "game",
+            "В эту игру сложно играть.": "game",
+            "Эту девочку сложно видеть.": "girl",
+            "Эту кошку легко мыть.": "cat",
+            "Эту птицу легко догонять.": "bird",
+            "Эту картинку легко рисовать.": "pic",
+            "Этот мяч сложно отбивать.": "ball",
+            "Этого пациента сложно передвигать.": "pat",
+            "Эту собаку сложно выгуливать.": "dog",
+            "Эту тележку сложно толкать.": "trol",
+            "Это животное легко прятать.": "anim",
+            "Эту книгу сложно читать.": "book",
+            
+            "Эту тележку сложно катить.": "trol",
+            "Эту девочку сложно видеть.": "girl",
+            "Этот стакан легко уронить.": "glass",
+            "Эту картинку легко рисовать.": "pic",
+            "Стакан пустой.": "glass",
+            "Эту книгу сложно читать.": "book",
+            "Это животное легко прятать.": "anim",
+            "Окно открыто.": "wind",
+            "Курица гонится за мальчиком.": "chick",
+            "Эту кошку легко мыть.": "cat",
+            "Птица сидит на носороге.": "bird",
+            "В эту игру сложно играть.": "game",
+            "Эту собаку сложно выгуливать.": "dog",
+            "Бутылка стоит перед гитарой.": "bottl",
+            "Этот мяч сложно вести.": "ball",
+            "Эту птицу легко ловить.": "bird",
+            "Этого пациента сложно передвигать.": "pat",
+            "Собака смотрит на кролика.": "dog"
         }
 
         self.sentence_mapping = {' '.join(k.split()): v for k,v in self.sentence_mapping.items()}
@@ -133,82 +183,8 @@ class XMLProcessor:
             item_dict[name] = item_aoi_list
 
         return aoi_list[::-1], item_dict
-
-    def reorder_by_sentences(self, aoi_list, sentences_df, t_shift, events_dict):
-        
-        flipped_origin = [1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1]
-
-        first_row_idx = 5
-        t0 = -t_shift + float(sentences_df.iloc[first_row_idx]['Stimuli_text.started'])
-
-        sentence_idx = 0
-        for item_idx in range(first_row_idx, first_row_idx + 18):
-            sentence = sentences_df.iloc[item_idx]['Sentences']
-            is_stimuli = int(sentences_df.iloc[item_idx]['Type_stimuli'])
-            is_flipped = int(sentences_df.iloc[item_idx]['flipped'])
-            is_flipped = is_flipped != flipped_origin[sentence_idx]
-
-            if not is_stimuli:
-                print("Not stimuli")
-                continue
-
-            if pd.isna(sentence):
-                print("None sentence")
-                exit()
-                
-            sentence = ' '.join(sentence.split())
-
-            if sentence not in self.sentence_mapping:
-                print("Unknown sentence:", sentence)
-                exit()
-
-            item = self.sentence_mapping[sentence]
-            print(f"Sentence: {sentence}, item: {item}")
-
-            # start_time = float(sentences_df.iloc[item_idx]['Stimuli_text.started']) - t0
-            # stop_time = start_time + float(sentences_df.iloc[item_idx]['mouse_2.time'])
-            event = events_dict[item]
-            start_time = float(event["start_time"]) - 0.1
-            stop_time = float(event["end_time"]) - 0.1
-
-            sub_idx = None
-            obj_idx = None
-            for aoi_idx in range(sentence_idx * 5, (sentence_idx + 1) * 5):
-                name_elem = aoi_list[aoi_idx].find('Name')
-                current_name = name_elem.text
-                print(aoi_idx, current_name, start_time, stop_time)
-                aoi_list[aoi_idx] = replace_suffix_in_name(aoi_list[aoi_idx], start_time, stop_time, item)
-                if "OBJ" in current_name:
-                    obj_idx = aoi_idx
-                if "SUB" in current_name:
-                    sub_idx = aoi_idx                    
-
-            # swap obj and sub keyframes
-            if is_flipped:
-                swap_keyframes(aoi_list[obj_idx], aoi_list[sub_idx])
-
-            sentence_idx += 1
-        
-        return aoi_list
     
-    def reorder_by_sentences2(self, item_dict, sentences_df, events_dict):
-        
-        flipped_origin = [1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0]
-        flipped_origin_dict = {
-            "glass":    1,
-            "game":     1,
-            "girl":     0,
-            "cat":      0,
-            "bird":     0,
-            "pic":      1,
-            "ball":     0,
-            "pat":      1,
-            "dog":      1,
-            "trol":     1,
-            "anim":     1,
-            "book":     0
-        }
-
+    def reorder_by_sentences(self, item_dict, sentences_df, events_dict, flipped_origin_dict):
         first_row_idx = 5
 
         sentence_idx = -1
@@ -219,7 +195,7 @@ class XMLProcessor:
             is_flipped = int(sentences_df.iloc[row_idx]['flipped'])
 
             if not is_stimuli:
-                print("Not stimuli")
+                print("Not stimuli, skipping")
                 continue
                 
             sentence = sentences_df.iloc[row_idx]['Sentences']
@@ -238,11 +214,9 @@ class XMLProcessor:
             
             print(f"Sentence: {sentence}, item: {item_name}")
 
-            # start_time = float(sentences_df.iloc[item_idx]['Stimuli_text.started']) - t0
-            # stop_time = start_time + float(sentences_df.iloc[item_idx]['mouse_2.time'])
             event = events_dict.get(item_name, events_dict.get(item_name + "_text.jpg"))
-            start_time = float(event["start_time"]) - 0.1
-            stop_time = float(event["end_time"]) - 0.1
+            start_time = round(float(event["start_time"]) - 0.1, 1)
+            stop_time = round(float(event["end_time"]) - 0.1, 1)
             print(item_name, start_time, stop_time)
 
             sub_idx = None
@@ -260,8 +234,6 @@ class XMLProcessor:
             # swap obj and sub keyframes
             if is_flipped:
                 swap_keyframes(output_list[obj_idx], output_list[sub_idx])
-
-        
 
         chunks = [output_list[i:i + 5] for i in range(0, len(output_list), 5)]
         chunks.reverse()
@@ -298,6 +270,22 @@ class XMLProcessor:
             tree.write(f, encoding='utf-8', xml_declaration=False, method='xml')
         print(f"\nWritten reordered XML to {output_file}")
 
+
+flipped_origin_dict_en = {
+    "glass": 0, "game": 1, "girl": 1, "cat": 1, "bird": 0, "pic": 0,
+    "ball": 0, "pat": 1, "dog": 0, "trol": 0, "anim": 1, "book": 1
+}
+
+flipped_origin_dict_ru = {
+    "glass": 0, "game": 1, "girl": 0, "cat": 0, "bird": 0, "pic": 0, 
+    "ball": 0, "pat": 1, "dog": 0, "trol": 1, "anim": 1, "book": 0
+}
+
+flipped_origin_dict_fr = {
+    "glass": 0, "game": 0, "girl": 1, "cat": 0, "bird": 0, "pic": 0,
+    "ball": 0, "pat": 1, "dog": 1, "trol": 1, "anim": 1, "book": 1
+}
+
 def main():
     sentences_df = pd.read_csv('G20407.csv')
     template_xml = XMLProcessor('G20406.xml') # do not change this
@@ -312,7 +300,7 @@ def main():
     print(len(aoi_list))
     
     print("\nReordering entries based on sentences...")
-    ordered_aoi_list = template_xml.reorder_by_sentences2(item_dict, sentences_df, events_dict)
+    ordered_aoi_list = template_xml.reorder_by_sentences(item_dict, sentences_df, events_dict, flipped_origin_dict_en)
 
     template_xml.write_xml(ordered_aoi_list, 'output31.xml')
 

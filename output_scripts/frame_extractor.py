@@ -73,3 +73,23 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+'''
+FRENCH ballon
+python3 frame_extractor.py \
+    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_ballon/screen_videos/ground_thruth/Example_G10116_SPM_FR_video.mkv \
+    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_ballon/screen_videos/ground_thruth/Time_slots_G10116.xlsx \
+    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_ballon/screen_videos/output_annotation/frames
+
+FRENCH balle
+python3 frame_extractor.py \
+    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/screen_videos/ground_thruth/G10123-scrrec.mkv \
+    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/screen_videos/ground_thruth/Time_slots_G10123.xlsx \
+    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/screen_videos/output_annotation/frames 
+
+RUSSIAN exceptions
+python3 frame_extractor.py \
+    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/ru_exceptional/screen_videos/ground_truth/G30706RU-scrrec.mkv \
+    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/ru_exceptional/screen_videos/ground_truth/Time_slots_G30706RU.xlsx \
+    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/ru_exceptional/screen_videos/output_annotation 
+'''

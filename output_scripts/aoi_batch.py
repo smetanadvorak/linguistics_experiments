@@ -106,9 +106,12 @@ def main():
         aoi_list, item_dict = template_xml.read_xml()
         sentences_df = pd.read_csv(psycho_path)
 
-        ordered_aoi_list = template_xml.reorder_by_sentences2(item_dict, sentences_df, events_dict)
+        # try:
+        ordered_aoi_list = template_xml.reorder_by_sentences(item_dict, sentences_df, events_dict, flipped_origin_dict_ru)
         output_path = os.path.join(args.output, psycho_id + "_aoi.xml")
         template_xml.write_xml(ordered_aoi_list, output_path)
+        # except:
+            # print("Problem with file", psycho_id, ". Skipping.")
 
         
     # Report unmatched files at the end
@@ -122,10 +125,39 @@ if __name__ == '__main__':
 
 
 '''
-aoi_batch.py \
-    --template /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/en/Example_G20406EN-scrrec-AOIs.xml \
-    --psycho /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr/psycho_py \
-    --events /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr/screen_videos/output_annotation \
-    --output /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr/output_aoi  
+ENGLISH:
+python aoi_batch.py \
+--template /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/en/Example_G20417EN-scrrec-AOIs.xml  \
+--events /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/en/screen_videos/output_annotation \
+--psycho /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/en/psycho_py \
+--output /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/en/output_aoi
+
+FRENCH:
+python aoi_batch.py \
+--template /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr/Example_G10116_AOIs.xml  \
+--events /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr/screen_videos/output_annotation \
+--psycho /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr/psycho_py \
+--output /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr/output_aoi
+
+FRENCH balle:
+python aoi_batch.py \
+--template /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/Example_G10116_AOIs.xml  \
+--events /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/screen_videos/output_annotation \
+--psycho /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/psycho_py \
+--output /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/output_aoi
+
+FRENCH ballon:
+python aoi_batch.py \
+--template /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_ballon/Example_G10116_AOIs.xml  \
+--events /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_ballon/screen_videos/output_annotation \
+--psycho /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_ballon/psycho_py \
+--output /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_ballon/output_aoi
+
+RUSSIAN:
+python aoi_batch.py \
+--template /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/ru/Example_G20606RU_AOIs.xml  \
+--events /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/ru/screen_videos/output_annotation \
+--psycho /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/ru/psycho_py \
+--output /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/ru/output_aoi
 
 '''
