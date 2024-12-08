@@ -5,6 +5,10 @@ output_scripts/data/*
 output_scripts/data_backup/*
 output_scripts/completion_reports/*
 
+sentence_picture_matching/data/*
+sentence_picture_matching/data_backup/*
+sentence_picture_matching/completion_reports/*
+
 */*.egg-info
 
 .DS_Store
