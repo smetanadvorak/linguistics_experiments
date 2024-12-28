@@ -286,6 +286,11 @@ flipped_origin_dict_fr = {
     "ball": 0, "pat": 1, "dog": 1, "trol": 1, "anim": 1, "book": 1
 }
 
+flipped_origin_dict_fr_balle = {
+    "glass": 1, "game": 0, "girl": 1, "cat": 0, "bird": 0, "pic": 0,
+    "ball": 0, "pat": 1, "dog": 1, "trol": 1, "anim": 1, "book": 1
+}
+
 def main():
     sentences_df = pd.read_csv('G20407.csv')
     template_xml = XMLProcessor('G20406.xml') # do not change this

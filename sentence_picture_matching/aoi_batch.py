@@ -107,7 +107,7 @@ def main():
         sentences_df = pd.read_csv(psycho_path)
 
         # try:
-        ordered_aoi_list = template_xml.reorder_by_sentences(item_dict, sentences_df, events_dict, flipped_origin_dict_ru)
+        ordered_aoi_list = template_xml.reorder_by_sentences(item_dict, sentences_df, events_dict, flipped_origin_dict_fr_balle)
         output_path = os.path.join(args.output, psycho_id + "_aoi.xml")
         template_xml.write_xml(ordered_aoi_list, output_path)
         # except:

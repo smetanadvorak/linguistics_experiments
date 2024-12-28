@@ -201,7 +201,6 @@ FRENCH balle
 python3 event_matcher.py \ 
     /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/screen_videos/input_videos \
     /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/screen_videos/output_annotation/frames \
-    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/screen_videos/output_annotation 
-
-
+    /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/screen_videos/output_annotation \
+    --threshold 0.95
 '''
