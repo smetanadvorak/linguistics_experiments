@@ -1,3 +1,9 @@
+"""
+This file describes functions used in 'parse_logs.py' and not an 'executable' script.
+
+Given an excel file with stimuli sentenses and a psychopy log file, extract reaction times for phrases from the log.
+"""
+
 from extract_phrases import extract_phrases
 
 import sys
@@ -6,7 +12,6 @@ import json
 import csv
 import unicodedata
 import pandas as pd
-
 
 def normalize_text(text):
     """

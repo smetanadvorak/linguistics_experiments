@@ -1,3 +1,15 @@
+"""
+Given .jsons with detected events and corresponding videos, find frame where an answer was clicked by the 
+subject (such frame is the last frame of every event from .json), and find out what button did then press, 
+using some simple computer vision. 
+
+Example:
+python detect_buttons.py \
+    --json_folder /Users/akmbpro/Documents/coding/alina/log_parsing/data2/fr/events  \
+    --video_folder /Users/akmbpro/Documents/coding/alina/log_parsing/data2/videos_fr \
+    --output_folder data2/buttons_fr
+"""
+
 import os
 import json
 import csv

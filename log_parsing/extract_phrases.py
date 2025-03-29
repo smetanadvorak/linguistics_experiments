@@ -1,5 +1,8 @@
+"""
+Small file with function that gets stimuli phrases from an excel file. Should barely exist as a separate file.
+"""
+
 import pandas as pd
-import sys
 
 def extract_phrases(file_path):
     # Read the Excel file
@@ -13,21 +16,3 @@ def extract_phrases(file_path):
     phrases = filtered_df['Sentence_Stimuli'].tolist()
     
     return phrases
-
-def main():
-    file_path = sys.argv[1]  # put with your actual file path
-    
-    try:
-        phrases = extract_phrases(file_path)
-        
-        print("Phrases with phrase_type 0:")
-        for i, phrase in enumerate(phrases, 1):
-            print(f"{i}. {phrase}")
-            
-        print(f"\nTotal phrases found: {len(phrases)}")
-        
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-if __name__ == "__main__":
-    main()

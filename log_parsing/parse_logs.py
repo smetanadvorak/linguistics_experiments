@@ -1,3 +1,13 @@
+"""
+Given an excel file with stimuli sentenses and a psychopy log file, extract reaction times for phrases from the log.
+
+Example:
+python3 parse_logs.py \
+    /Users/akmbpro/Documents/coding/alina/log_parsing/data/Stimuli\ French.xlsx \
+    /Users/akmbpro/Documents/coding/alina/log_parsing/data/Log\ files\ FR 
+"""
+
+
 import os
 import sys
 import re

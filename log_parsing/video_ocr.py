@@ -1,3 +1,10 @@
+"""
+Given excel with simuli sentences and a corresponding video, find frames where video contains each of 
+the sentences, and save these frames as example, to later find them in other videos by simple image matching.
+
+See configuration below in main() function.
+"""
+
 import cv2
 import pytesseract
 import pandas as pd
