@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import pandas as pd
 from extract_phrases import extract_phrases
 from log_parser import extract_time_for_matching_phrases, save_results_to_csv, normalize_text
 
@@ -12,7 +13,8 @@ def process_log_files(phrase_path, log_folder):
         phrase_path (str): Path to the file containing phrases
         log_folder (str): Path to the folder containing log files
     """
-    # Load phrases
+    # Load phrases and original dataframe
+    phrase_df = pd.read_excel(phrase_path)
     phrases = extract_phrases(phrase_path)
     print(f"Loaded {len(phrases)} phrases from {phrase_path}")
 
@@ -39,21 +41,14 @@ def process_log_files(phrase_path, log_folder):
         
         # Extract data from the log file
         try:
-            results = extract_time_for_matching_phrases(log_file_path, phrases)
+            results = extract_time_for_matching_phrases(log_file_path, phrases, phrase_df)
 
-            # diff = [p for p in phrases if p not in results]
-            # [print(d, '\n', normalize_text(d)) for d in diff]
-            # exit()
-
-            # if len(results) != 168:
-            #     raise Exception(f"Got {len(results)} items instead of exactly 168")
-            # Create output filename
+            # Create output filename (using .csv instead of .xlsx)
             output_file = os.path.join(output_dir, f"{os.path.splitext(log_file)[0]}.csv")   
 
-            # Save results to CSV
-            print(output_file)
-            save_results_to_csv(results, output_file)
-            # print(f"  - Saved results to {output_file}")
+            # Save results to CSV with the original dataframe
+            save_results_to_csv(results, output_file, phrase_df)
+            print(f"  - Saved results to {output_file}")
             
         except Exception as e:
             print(f"  - Error processing {log_file}: {e}")
@@ -61,7 +56,7 @@ def process_log_files(phrase_path, log_folder):
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python batch_processor.py phrase_file log_folder")
+        print("Usage: python parse_logs.py phrase_file log_folder")
         sys.exit(1)
         
     phrase_path = sys.argv[1]  # path to file with phrases

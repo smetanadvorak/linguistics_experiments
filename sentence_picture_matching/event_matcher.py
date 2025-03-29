@@ -82,6 +82,8 @@ def find_events(video_path, reference_frames, threshold=0.8, text_weight=1.0):
     
     current_events = defaultdict(lambda: {'start': None, 'score': 0})
     detected_events = []
+
+    ref_frames_copy = dict(reference_frames)
     
     with tqdm(total=total_frames, desc=f"Processing {Path(video_path).name}") as pbar:
         frame_number = 0
@@ -97,11 +99,13 @@ def find_events(video_path, reference_frames, threshold=0.8, text_weight=1.0):
             regions = extract_regions(frame)
             if regions['text'] is None:
                 continue
-            
-            for event_name, ref_data in reference_frames.items():
+        
+            to_delete = None
+            for event_name, ref_data in ref_frames_copy.items():
                 text_sim = compute_text_similarity(regions['text'], ref_data['text'])
                 if text_sim > threshold:
                     if current_events[event_name]['start'] is None:
+                        print("Detected", event_name)
                         current_events[event_name]['start'] = current_time
                     current_events[event_name]['score'] += text_sim
                 else:
@@ -114,7 +118,11 @@ def find_events(video_path, reference_frames, threshold=0.8, text_weight=1.0):
                                         ((current_time - current_events[event_name]['start']) * fps))
                         })
                         current_events[event_name] = {'start': None, 'score': 0}
-    
+                        to_delete = event_name
+            
+            if to_delete is not None:
+                del ref_frames_copy[to_delete]  # for a little bit of speed 
+
     video.release()
     detected_events.sort(key=lambda x: x['start_time'])
     return detected_events
@@ -123,6 +131,7 @@ def process_video(video_path, reference_frames, output_path, threshold, text_wei
     """Process a single video file"""
     try:
         video_name = Path(video_path).stem
+        video_name = video_name.replace("Copy of ", "")
         output_file = Path(output_path) / f"{video_name}_events.json"
         if video_name.endswith('_events'):
             output_file = Path(output_path) / f"{video_name}.json"
@@ -203,4 +212,16 @@ python3 event_matcher.py \
     /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/screen_videos/output_annotation/frames \
     /Users/akmbpro/Documents/coding/alina/output_scripts/data/ex1/fr_balle/screen_videos/output_annotation \
     --threshold 0.95
+
+
+python3 event_matcher.py \ 
+    /Users/akmbpro/Documents/coding/alina/sentence_picture_matching/data/aoi2/en/screen_videos \
+    /Users/akmbpro/Documents/coding/alina/sentence_picture_matching/data/aoi2/en/output_annotation/frames \
+    /Users/akmbpro/Documents/coding/alina/sentence_picture_matching/data/aoi2/en/events \
+    --threshold 0.95
+
+python3 event_matcher.py /Users/akmbpro/Documents/coding/alina/sentence_picture_matching/data/aoi2/en/screen_videos /Users/akmbpro/Documents/coding/alina/sentence_picture_matching/data/aoi2/en/output_annotation/frames /Users/akmbpro/Documents/coding/alina/sentence_picture_matching/data/aoi2/en/events --threshold 0.95
+
+python3 event_matcher.py /Users/akmbpro/Documents/coding/alina/log_parsing/data2/videos_en /Users/akmbpro/Documents/coding/alina/log_parsing/data2/frames_en /Users/akmbpro/Documents/coding/alina/log_parsing/data2/en/events --threshold 0.95
+
 '''

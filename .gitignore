@@ -1,6 +1,13 @@
 */__pycache__/*
 *__pycache__*
-
+*.csv
+*.json
+*.jpg
+*.mkv
+*.psydat
+*.xlsx
+*.log
+*.xml
 
 */data/*
 
@@ -16,3 +23,5 @@ sentence_picture_matching/completion_reports/*
 */*.egg-info
 
 .DS_Store
+
+log_parsing/data/*
