@@ -6,7 +6,7 @@ class Dataset:
     def __init__(self, dataset_path):
         print("Loading dataset ...")
         self.components = {'video': True, 'frame': False, 'event': False, 'psychopy': True, 'aoi': False}
-        self.extensions = [ ".mkv", ".json", ".jpg", ".xlsx"]
+        self.extensions = [ ".mkv", ".json", ".jpg", ".xlsx", ".csv"]
         self.root_dir = dataset_path
         self.dirs = {}
         for component in self.components:
@@ -43,12 +43,14 @@ class Dataset:
 
 
     def get_file_id(self, path):
-        id = os.path.basename(path)
-        id = id.replace("-scrrec.mkv", "")
-        id = id.replace("_TxC.xlsx", "")
+        id = os.path.splitext(os.path.basename(path))[0]
+        id = id.replace("-scrrec", "")
+        id = id.replace("_TxC", "")
         id = id.replace("EN", "")
         id = id.replace("FR", "")
         id = id.replace("RU", "")
+        id = id.replace("_PR", "")
+        id = id.replace("_example", "")
         return id
 
     def get_path_list(self, component):

@@ -1,4 +1,5 @@
 import cv2
+import os
 import numpy as np
 from pathlib import Path
 import json
@@ -6,6 +7,35 @@ from collections import defaultdict
 from tqdm import tqdm
 from typing import Dict, List, Optional, Union
 from matplotlib import pyplot as plt
+
+class Video:
+    def __init__(self, video_path):
+        self.video_path = video_path
+        self.video = cv2.VideoCapture(str(video_path))
+        if not self.video.isOpened():
+            raise ValueError(f"Failed to open video: {video_path}")
+
+        self.fps = self.video.get(cv2.CAP_PROP_FPS)
+        total_frames = int(self.video.get(cv2.CAP_PROP_FRAME_COUNT))
+        print("Video is ", total_frames / self.fps, " seconds long")
+
+        self.frame_number = 0
+        self.video_ended = False
+
+    def read(self):
+        ret, frame = self.video.read()
+        if not ret:
+            self.video_ended = True
+            print("Video ended prematurely")
+            return None
+
+        self.frame_number += 1
+        self.current_time = self.frame_number / self.fps
+
+        return frame
+    
+    def release(self):
+        self.video.release()
 
 
 class VideoEventMatcher:
@@ -22,8 +52,10 @@ class VideoEventMatcher:
         for event_file in reference_dir.iterdir():
             if event_file.suffix.lower() in ['.png', '.jpg', '.jpeg']:
                 img = cv2.imread(str(event_file))
+                name = os.path.splitext(os.path.basename(event_file))[0]
+                print("Read reference image", name)
                 if img is not None:
-                    self.reference_frames[event_file.name] = {
+                    self.reference_frames[name] = {
                         'text': img
                     }
                 else:
@@ -193,6 +225,8 @@ class VideoEventMatcher:
         return detected_events
 
 
+
+
     def find_events(self, video_path: Union[str, Path]) -> List[dict]:
         """Find events in video using text similarity"""
         if not self.reference_frames:
@@ -262,6 +296,116 @@ class VideoEventMatcher:
         video.release()
         detected_events.sort(key=lambda x: x['start_time'])
         return detected_events
+
+    def extract_event(self, video, item_name):
+        item_done = False
+        current_event = {}
+        while not item_done:
+            frame = video.read()
+
+            if video.video_ended:
+                break
+
+            regions = self.extract_regions(frame, self.region_config)
+
+            sim = self.compute_text_similarity(
+                regions['text'],
+                self.reference_frames[item_name]['text']
+            )
+            if sim > self.threshold:
+                if not item_started:
+                    print("Start:", item_name)
+                    current_event['start'] = video.current_time
+                    current_event['score'] = sim
+                    item_started = True
+                else:
+                    current_event['score'] += sim
+
+            if sim < self.threshold and item_started:
+                print("End:", item_name)
+                event = {
+                    'event': item_name,
+                    'start_time': float(current_event['start']),
+                    'end_time': float(video.current_time),
+                    'confidence': float(current_event['score'] / ((video.current_time - current_event['start']) * video.fps))
+                }
+                item_done = True
+            
+        return current_event
+
+
+    def find_cross(self, video):
+        '''
+        Find next cross and skip until right after it.
+        '''
+        cross_started = False
+        cross_ended = False
+
+        while not video.video_ended and not cross_ended:
+            frame = video.read()
+            regions = self.extract_regions(frame, self.region_config)
+            sim = self.compute_text_similarity(
+                regions['text'],
+                self.reference_frames['cross']['text']
+            )
+            if sim > self.threshold and not cross_started:
+                print("Start cross")
+                cross_started = True
+
+            if sim < self.threshold and cross_started:
+                print("End cross")
+                cross_started = False
+                cross_ended = True
+                return
+
+    def find_events_cross(self, video_path, item_list):
+        """Find occurrences of the pre-video cross on the screen"""
+
+        video = Video(str(video_path))
+
+        detected_events = []
+        n_cross_skip = 2 # skip first two crosses as they are the tutorial ones
+
+        event_list = []
+        current_event = {}
+
+        for i in range(n_cross_skip):
+            self.find_cross(video)
+
+        for item_idx in range(len(item_list)):
+            self.find_cross(video)
+            item_name = item_list[item_idx]
+            item_started = False
+            item_ended = False
+
+            print("Item", item_idx, item_name)
+            while not video.video_ended and not item_ended:
+                frame = video.read()
+                regions = self.extract_regions(frame, self.region_config)
+                
+                level = np.mean(regions['text'].flatten())
+                if level < 254.9:
+                    if not item_started:
+                        print("Start:", item_name)
+                        current_event['start'] = video.current_time
+                        item_started = True
+                        item_ended = False
+
+                if level >= 254.9 and item_started:
+                    print("End:", item_name)
+                    event = {
+                        'event': item_name,
+                        'start_time': float(current_event['start']),
+                        'end_time': float(video.current_time)
+                    }
+                    event_list.append(event)
+                    item_started = False
+                    item_ended = True
+
+        video.release()
+        event_list.sort(key=lambda x: x['start_time'])
+        return event_list
+
 
     def _get_current_event(self) -> Optional[str]:
         """Get the current event to look for"""

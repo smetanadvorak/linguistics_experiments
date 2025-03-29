@@ -82,7 +82,8 @@ class FrameExtractor:
         fps = video.get(cv2.CAP_PROP_FPS)
 
         # Create directory for frames
-        images_dir = os.path.join(output_dir, "frames")
+        # images_dir = os.path.join(output_dir, "frames")
+        images_dir = output_dir
         Path(images_dir).mkdir(exist_ok=True)
 
         for _, row in df.iterrows():
