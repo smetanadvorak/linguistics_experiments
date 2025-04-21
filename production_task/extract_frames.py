@@ -18,5 +18,21 @@ regions = {
     )
 }
 
-extractor = FrameExtractor(regions)
+regions_250405 = {
+    'text': RegionConfig(
+        top=0.25, bottom=0.75, 
+        left=0.3, right=0.7,
+        clear_timer=False
+    )
+}
+
+extractor = FrameExtractor(regions_250405)
 extractor.extract_frames(args.video_path, args.timestamps_file, args.output_dir)
+
+
+"""
+python3 extract_frames.py \
+    data_250405/en/G10207EN.mkv \
+    data_250405/en/Time_slots_G10207_EndPoint.xlsx \
+    data_250405/en/events
+"""

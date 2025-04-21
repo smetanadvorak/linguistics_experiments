@@ -92,17 +92,35 @@ class XMLProcessor:
 
     def generate_experiment(self, event_list):
         output_list = []
+        n_events_accepted = 0
+        template_events_left = set(list(self.master_dict.keys()))
+        print(template_events_left)
+        experiment_events_left = set([e['event'] for e in event_list])
         for event in event_list:
             item_name = event['event']
-            item_t0 = event['start_time']
+            item_t0 = event['start_time'] - 0.1
             item_name = item_name[:4]  # to exclude the last '4' character from all item names (present in csv)
             if not item_name in self.master_dict:
-                print("Name {item_name} not in master dict!")
+                # print(f"AOI for event {item_name} not found in AOI template!")
                 continue
+
+            n_events_accepted += 1
+            experiment_events_left.remove(event['event'])
+            template_events_left.remove(item_name)
             for aoi in self.master_dict[item_name].values():
                 modified_aoi = self.advance_aoi_time(copy.deepcopy(aoi), item_t0)
                 output_list.append(modified_aoi)
 
+        if n_events_accepted != len(self.master_dict):
+            msg = f"Got AOIs for {n_events_accepted} items instead of all {len(self.master_dict)} items present in template AOI. Missing: {template_events_left}"
+            print(msg)
+            input("Continue ...")
+        if len(experiment_events_left):
+            msg = f"Got AOIs for {n_events_accepted} items instead of all {len(event_list)} items present in the experiment. Missing: {experiment_events_left}"
+            print(msg)
+            # input("Continue ...")
+            
+            # raise Exception(msg)
         return output_list
 
 

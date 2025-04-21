@@ -76,6 +76,7 @@ def main():
 
         with open(dataset.get_path(id, "event"), 'r') as f:
             events_data = json.load(f)
+            
         # try:
         ordered_aoi_list = template_xml.generate_experiment(events_data)
         output_path = dataset.get_path(id, "aoi")
@@ -95,4 +96,9 @@ ENGLISH:
 python3 aoi_batch.py \
 /Users/akmbpro/Documents/coding/alina/text_completion/data/en \
 /Users/akmbpro/Documents/coding/alina/text_completion/data/en/ground_truth/G10206EN_TxC_AOIs.xml
+'''
+
+'''
+ENGLISH 250405:
+python3 aoi_batch.py data_250405/en data_250405/en/G10207EN-scrrec (AOIs) Total v.2.xml data_250405/en/aoi_total
 '''

@@ -70,7 +70,7 @@ class FrameExtractor:
             video_path: Path to the video file
             timestamps_file: Path to the Excel file containing timestamps
             output_dir: Directory to save extracted frames
-            time_offset: Time offset in seconds to add to start time (default: 0.5)
+            time_offset: Time offset between start and end time (default: 0.5, in [0,1])
         """
         Path(output_dir).mkdir(parents=True, exist_ok=True)
 
@@ -89,9 +89,9 @@ class FrameExtractor:
         for _, row in df.iterrows():
             item_name = row['Item_name']
             start_time = float(row['Start_time'])
-
+            offset = time_offset * (float(row['End_time']) - float(row['Start_time']))
             # Get frame at start time plus offset
-            frame_num = int((start_time + time_offset) * fps)
+            frame_num = int((start_time + offset) * fps)
             video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
             ret, frame = video.read()
 

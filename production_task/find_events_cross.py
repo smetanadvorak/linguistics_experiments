@@ -30,8 +30,6 @@ def main():
             print("Skipping subject", id, ": missing files")
             continue
 
-        print(os.path.basename(dataset.get_path(id, "psychopy")), os.path.basename(dataset.get_path(id, "video")))
-
         matcher = VideoEventMatcher(threshold=args.threshold)
         matcher.load_reference_frames(dataset.dirs['frame'])
         matcher.set_region(region_config)
@@ -46,3 +44,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+"""
+python3 find_events_cross.py data_250405/en
+"""
