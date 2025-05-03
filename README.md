@@ -1,5 +1,5 @@
 # Description
-This repository contains tools and scripts for processing results of a number of psycho-linguistic experiments. 
+This repository contains tools and scripts for processing results of a number of psycholinguistic experiments. 
 Experiments included eye-tracking, decision logging, reaction time measumerements, and so on. 
 Data was logged using PsychoPy software and saved in form of .csv and .xlsx files. 
 Screen recording was also done along the entirety of the experiments. 
