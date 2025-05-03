@@ -81,7 +81,7 @@ def main():
         ordered_aoi_list = template_xml.generate_experiment(events_data)
         output_path = dataset.get_path(id, "aoi")
         pre, suf = os.path.splitext(os.path.basename(output_path))
-        pre = pre + "EN_PR"
+        pre = pre + "FR_PR"
         output_path = os.path.join(os.path.dirname(output_path), pre + "_AOIs" + suf)
         template_xml.write_xml(ordered_aoi_list, output_path)
         # except Exception as e:

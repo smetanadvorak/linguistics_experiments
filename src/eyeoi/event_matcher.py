@@ -7,6 +7,8 @@ from collections import defaultdict
 from tqdm import tqdm
 from typing import Dict, List, Optional, Union
 from matplotlib import pyplot as plt
+from eyeoi.frame_extractor import RegionConfig
+
 
 class Video:
     def __init__(self, video_path):
@@ -36,6 +38,11 @@ class Video:
     
     def release(self):
         self.video.release()
+
+    def set_frame(self, frame_number):
+        self.video.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+        self.frame_number = frame_number
+        self.current_time = frame_number / self.fps
 
 
 class VideoEventMatcher:
@@ -289,6 +296,9 @@ class VideoEventMatcher:
                             'confidence': float(current_events[current_event]['score'] /
                                         ((current_time - current_events[current_event]['start']) * fps))
                         }
+                        decision_time = float(current_time) - float(current_events[current_event]['start'])
+                        if decision_time > 10:
+                            print("Warning: unusually long decision time:", decision_time)
                         detected_events.append(event)
                         current_events[current_event] = {'start': None, 'score': 0}
                         self._current_item_index += 1  # Move to next event
@@ -349,56 +359,76 @@ class VideoEventMatcher:
                 self.reference_frames['cross']['text']
             )
             if sim > self.threshold and not cross_started:
-                print("Start cross")
+                # print("Start cross")
                 cross_started = True
 
             if sim < self.threshold and cross_started:
-                print("End cross")
+                # print("End cross")
                 cross_started = False
                 cross_ended = True
                 return
 
-    def find_events_cross(self, video_path, item_list):
+    def format_time(self, seconds_float):
+        # calculate minutes, seconds, and milliseconds
+        minutes = int(seconds_float // 60)
+        seconds = int(seconds_float % 60)
+        milliseconds = int((seconds_float % 1) * 1000)
+        
+        # format as mm:ss:ms
+        formatted_time = f"{minutes:02d}:{seconds:02d}:{milliseconds:03d}"
+        
+        return formatted_time
+
+    def find_events_cross(self, video_path, item_list, n_skip=2, skip_every_first=False, abandon_last=False):
         """Find occurrences of the pre-video cross on the screen"""
 
         video = Video(str(video_path))
 
-        detected_events = []
-        n_cross_skip = 2 # skip first two crosses as they are the tutorial ones
-
         event_list = []
         current_event = {}
 
-        for i in range(n_cross_skip):
+        for i in range(n_skip):
             self.find_cross(video)
 
         for item_idx in range(len(item_list)):
             self.find_cross(video)
+            if skip_every_first:
+                self.find_cross(video)
+
             item_name = item_list[item_idx]
             item_started = False
             item_ended = False
 
-            print("Item", item_idx, item_name)
+            # print("Item", item_idx, item_name, self.format_time(video.current_time))
             while not video.video_ended and not item_ended:
                 frame = video.read()
-                regions = self.extract_regions(frame, self.region_config)
+                region_config = RegionConfig(
+                    top=0.25, bottom=0.35, 
+                    left=0.25, right=0.35,
+                    clear_timer=False
+                )
+                regions = self.extract_regions(frame, region_config)
                 
                 level = np.mean(regions['text'].flatten())
-                if level < 254.9:
-                    if not item_started:
-                        print("Start:", item_name)
-                        current_event['start'] = video.current_time
-                        item_started = True
-                        item_ended = False
-
-                if level >= 254.9 and item_started:
-                    print("End:", item_name)
+                # if level < 254.9:
+                if not item_started:
+                    print(item_idx, "s:", item_name, self.format_time(video.current_time))
+                    current_event['start'] = video.current_time
+                    item_started = True
                     event = {
                         'event': item_name,
-                        'start_time': float(current_event['start']),
-                        'end_time': float(video.current_time)
+                        'start_time': float(video.current_time),
+                        'end_time': -1
                     }
                     event_list.append(event)
+                    item_ended = False
+                    if abandon_last and item_idx == len(item_list) - 1:
+                        break
+
+                if level >= 254.9 and item_started:
+                    print(item_idx, "f:", item_name, self.format_time(video.current_time))
+                    print()
+                    event_list[-1]["end_time"] = float(video.current_time)
                     item_started = False
                     item_ended = True
 
@@ -406,6 +436,20 @@ class VideoEventMatcher:
         event_list.sort(key=lambda x: x['start_time'])
         return event_list
 
+    def find_empty(self, video_path, start_time, region_config):
+        """Find empty frames in the video"""
+        video = Video(str(video_path))
+        video.set_frame(start_time * video.fps)
+
+        while not video.video_ended:
+            frame = video.read()
+            regions = self.extract_regions(frame, region_config)
+            level = np.mean(regions['text'].flatten())
+            if level >= 254.9:
+                return video.current_time
+
+        video.release()
+        return None
 
     def _get_current_event(self) -> Optional[str]:
         """Get the current event to look for"""
